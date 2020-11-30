@@ -1,3 +1,5 @@
+sudo: true
+
 os: linux
 dist: bionic
 language: c
@@ -48,6 +50,7 @@ addons:
       - xfonts-base
       - xterm
       - xutils-dev
+      - checkinstall
 
 # TODO: Potentially switch to coverxygen (active project with the same goal) at
 # some point in the future?
@@ -114,9 +117,12 @@ before_install:
     - ninja -C build doc/html 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
     - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
+    - sudo checkinstall --install=no -y 
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+  - bash upload.sh *.deb
 
 # Travis CI doesn't propagate the compiler key to individual jobs. Define
 # a _single_ compiler for each job, as a list will only result in the first
